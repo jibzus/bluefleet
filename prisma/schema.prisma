@@ -1,0 +1,220 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id                    String             @id @default(cuid())
+  email                 String             @unique
+  password              String             // hashed password for credentials auth
+  name                  String?
+  role                  Role               @default(OPERATOR)
+  orgId                 String?
+  createdAt             DateTime           @default(now())
+  kyc                   KycRecord[]        @relation("UserKycRecords")
+  reviewedKyc           KycRecord[]        @relation("ReviewerKycRecords")
+  bookings              Booking[]
+  vessels               Vessel[]
+  verifiedCompliance    ComplianceRecord[]
+  verificationLogs      VerificationLog[]
+  uploadedDocumentHash  DocumentHash[]
+}
+
+enum Role {
+  OWNER
+  OPERATOR
+  ADMIN
+  REGULATOR
+}
+
+model KycRecord {
+  id         String    @id @default(cuid())
+  userId     String
+  status     KycStatus @default(DRAFT)
+  fields     Json
+  reviewerId String?
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+  user       User      @relation("UserKycRecords", fields: [userId], references: [id])
+  reviewer   User?     @relation("ReviewerKycRecords", fields: [reviewerId], references: [id])
+}
+
+enum KycStatus {
+  DRAFT
+  SUBMITTED
+  APPROVED
+  REJECTED
+}
+
+model Vessel {
+  id        String   @id @default(cuid())
+  ownerId   String
+  slug      String   @unique
+  type      String
+  specs     Json
+  homePort  String?
+  emissions Json?
+  status    String   @default("DRAFT")
+  createdAt DateTime @default(now())
+  owner     User     @relation(fields: [ownerId], references: [id])
+  media     VesselMedia[]
+  certs     Certification[]
+  availability AvailabilitySlot[]
+  bookings  Booking[]
+}
+
+model VesselMedia {
+  id       String @id @default(cuid())
+  vesselId String
+  url      String
+  alt      String?
+  sort     Int     @default(0)
+  vessel   Vessel  @relation(fields: [vesselId], references: [id])
+}
+
+model Certification {
+  id        String   @id @default(cuid())
+  vesselId  String
+  kind      String
+  issuer    String?
+  number    String?
+  issuedAt  DateTime?
+  expiresAt DateTime?
+  docUrl    String?
+  hash      String   // SHA-256 hash of uploaded doc
+  status    String   @default("PENDING")
+  vessel    Vessel   @relation(fields: [vesselId], references: [id])
+}
+
+model AvailabilitySlot {
+  id       String   @id @default(cuid())
+  vesselId String
+  start    DateTime
+  end      DateTime
+  vessel   Vessel @relation(fields: [vesselId], references: [id])
+}
+
+model Booking {
+  id         String   @id @default(cuid())
+  vesselId   String
+  operatorId String
+  start      DateTime
+  end        DateTime
+  terms      Json
+  status     BookingStatus @default(REQUESTED)
+  createdAt  DateTime @default(now())
+  vessel     Vessel   @relation(fields: [vesselId], references: [id])
+  operator   User     @relation(fields: [operatorId], references: [id])
+  contract   Contract?
+  escrow     EscrowTransaction?
+}
+
+enum BookingStatus {
+  REQUESTED
+  COUNTERED
+  ACCEPTED
+  CANCELLED
+}
+
+model Contract {
+  id         String   @id @default(cuid())
+  bookingId  String   @unique
+  version    Int      @default(1)
+  pdfUrl     String?
+  hash       String?  // SHA-256 of the PDF
+  signedAt   DateTime?
+  signerIds  String[]
+  booking    Booking  @relation(fields: [bookingId], references: [id])
+}
+
+model EscrowTransaction {
+  id         String   @id @default(cuid())
+  bookingId  String   @unique
+  provider   String
+  currency   String
+  amount     Int      // in minor units
+  fee        Int      // in minor units
+  status     String
+  logs       Json
+  booking    Booking  @relation(fields: [bookingId], references: [id])
+}
+
+model TrackingEvent {
+  id        String   @id @default(cuid())
+  vesselId  String
+  bookingId String?
+  lat       Float
+  lng       Float
+  ts        DateTime
+  provider  String
+  meta      Json
+}
+
+model ComplianceRecord {
+  id              String            @id @default(cuid())
+  vesselId        String
+  certificationId String?
+  type            ComplianceType
+  status          ComplianceStatus  @default(PENDING)
+  verifiedBy      String?
+  verifiedAt      DateTime?
+  expiresAt       DateTime?
+  notes           String?
+  metadata        Json?
+  createdAt       DateTime          @default(now())
+  updatedAt       DateTime          @updatedAt
+  verifier        User?             @relation(fields: [verifiedBy], references: [id])
+  logs            VerificationLog[]
+}
+
+enum ComplianceType {
+  NIMASA
+  NIPEX
+  SOLAS
+  IMO
+  FLAG_STATE
+  PORT_STATE
+  INSURANCE
+  CREW_CERT
+  OTHER
+}
+
+enum ComplianceStatus {
+  PENDING
+  VERIFIED
+  EXPIRED
+  REJECTED
+  UNDER_REVIEW
+}
+
+model VerificationLog {
+  id                String           @id @default(cuid())
+  complianceId      String
+  action            String
+  performedBy       String
+  notes             String?
+  metadata          Json?
+  createdAt         DateTime         @default(now())
+  compliance        ComplianceRecord @relation(fields: [complianceId], references: [id])
+  performer         User             @relation(fields: [performedBy], references: [id])
+}
+
+model DocumentHash {
+  id              String   @id @default(cuid())
+  documentUrl     String
+  hash            String   // SHA-256
+  algorithm       String   @default("SHA-256")
+  uploadedBy      String
+  vesselId        String?
+  certificationId String?
+  metadata        Json?
+  createdAt       DateTime @default(now())
+  uploader        User     @relation(fields: [uploadedBy], references: [id])
+
+  @@index([hash])
+  @@index([documentUrl])
+}
