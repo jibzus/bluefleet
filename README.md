@@ -1,6 +1,6 @@
 # BlueFleet — MVP Scaffold (Next.js + TypeScript + Tailwind + shadcn/ui-ready)
 
-This repository is scaffolded to match the PRD/Architecture documents. It includes:
+This repository is scaffolded as follows:
 - Next.js App Router + TypeScript
 - Tailwind CSS (shadcn/ui-ready primitives)
 - Prisma/Postgres schema aligned with MVP models
