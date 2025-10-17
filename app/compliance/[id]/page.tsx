@@ -3,7 +3,7 @@ import { requireRole } from "@/lib/auth";
 import { prisma } from "@/lib/db";
 import { getVerificationLog } from "@/lib/compliance/compliance-engine";
 import { Card } from "@/components/ui/card";
-import Link from "next/link";
+import { PageHeader } from "@/components/layout/PageHeader";
 
 export default async function ComplianceDetailPage({
   params,
@@ -38,18 +38,20 @@ export default async function ComplianceDetailPage({
 
   return (
     <main className="mx-auto max-w-5xl p-6">
-      <div className="mb-6">
-        <Link
-          href="/compliance"
-          className="mb-4 inline-flex items-center text-sm text-gray-600 hover:text-gray-900"
-        >
-          ← Back to Compliance Dashboard
-        </Link>
-        <h1 className="text-3xl font-bold">Compliance Record Details</h1>
-        <p className="mt-2 text-gray-600">
-          {isRegulator ? "Read-only view" : "Review and verify compliance documentation"}
-        </p>
-      </div>
+      <PageHeader
+        title="Compliance Record Details"
+        description={
+          isRegulator
+            ? "Read-only view"
+            : "Review and verify compliance documentation"
+        }
+        backHref="/compliance"
+        backLabel="Back to Compliance Dashboard"
+        breadcrumbs={[
+          { label: "Compliance", href: "/compliance" },
+          { label: compliance.type },
+        ]}
+      />
 
       {isRegulator && (
         <Card className="mb-6 border-blue-200 bg-blue-50 p-4">
@@ -254,4 +256,3 @@ export default async function ComplianceDetailPage({
     </main>
   );
 }
-

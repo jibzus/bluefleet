@@ -2,6 +2,7 @@ import { redirect, notFound } from "next/navigation";
 import { requireRole } from "@/lib/auth";
 import { prisma } from "@/lib/db";
 import { VesselForm } from "@/components/vessel/VesselForm";
+import { PageHeader } from "@/components/layout/PageHeader";
 
 export default async function EditVesselPage({
   params,
@@ -37,15 +38,18 @@ export default async function EditVesselPage({
 
   return (
     <main className="mx-auto max-w-6xl p-6">
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold">Edit Vessel</h1>
-        <p className="mt-2 text-gray-600">
-          Update your vessel listing information
-        </p>
-      </div>
+      <PageHeader
+        title="Edit Vessel"
+        description="Update your vessel listing information"
+        backHref="/owner/vessels"
+        backLabel="Back to My Vessels"
+        breadcrumbs={[
+          { label: "Vessels", href: "/owner/vessels" },
+          { label: vessel.slug || "Edit" },
+        ]}
+      />
 
       <VesselForm userId={user.id} vessel={vessel} />
     </main>
   );
 }
-

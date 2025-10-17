@@ -4,6 +4,7 @@ import { prisma } from "@/lib/db";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
+import { PageHeader } from "@/components/layout/PageHeader";
 
 export default async function OwnerVesselsPage() {
   const user = await requireRole(["OWNER", "ADMIN"]);
@@ -45,19 +46,15 @@ export default async function OwnerVesselsPage() {
 
   return (
     <main className="mx-auto max-w-7xl p-6">
-      <div className="mb-8 flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold">My Vessels</h1>
-          <p className="mt-2 text-gray-600">
-            Manage your vessel listings and availability
-          </p>
-        </div>
-        <Link href="/owner/vessels/new">
-          <Button className="bg-primary text-white">
-            + Add New Vessel
-          </Button>
-        </Link>
-      </div>
+      <PageHeader
+        title="My Vessels"
+        description="Manage your vessel listings and availability"
+        actions={
+          <Link href="/owner/vessels/new">
+            <Button className="bg-primary text-white">+ Add New Vessel</Button>
+          </Link>
+        }
+      />
 
       {/* Statistics Cards */}
       <div className="mb-8 grid gap-6 md:grid-cols-4">
@@ -231,4 +228,3 @@ export default async function OwnerVesselsPage() {
     </main>
   );
 }
-

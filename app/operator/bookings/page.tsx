@@ -4,6 +4,7 @@ import { requireRole } from "@/lib/auth";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { formatBookingStatus } from "@/lib/validators/booking";
+import { PageHeader } from "@/components/layout/PageHeader";
 
 export default async function OperatorBookingsPage() {
   const user = await requireRole(["OPERATOR"]);
@@ -53,13 +54,15 @@ export default async function OperatorBookingsPage() {
 
   return (
     <main className="mx-auto max-w-7xl p-6">
-      {/* Header */}
-      <div className="mb-8">
-        <h1 className="mb-2 text-3xl font-bold">My Bookings</h1>
-        <p className="text-gray-600">
-          Manage your vessel booking requests and active charters
-        </p>
-      </div>
+      <PageHeader
+        title="My Bookings"
+        description="Manage your vessel booking requests and active charters"
+        actions={
+          <Link href="/search">
+            <Button variant="outline">Browse Vessels</Button>
+          </Link>
+        }
+      />
 
       {/* Statistics */}
       <div className="mb-8 grid gap-4 md:grid-cols-5">
@@ -203,4 +206,3 @@ export default async function OperatorBookingsPage() {
     </main>
   );
 }
-

@@ -2,7 +2,7 @@ import { redirect } from "next/navigation";
 import { requireRole } from "@/lib/auth";
 import { prisma } from "@/lib/db";
 import { Card } from "@/components/ui/card";
-import Link from "next/link";
+import { PageHeader } from "@/components/layout/PageHeader";
 
 export default async function DocumentHashLogPage() {
   const user = await requireRole(["ADMIN"]);
@@ -34,18 +34,17 @@ export default async function DocumentHashLogPage() {
 
   return (
     <main className="mx-auto max-w-7xl p-6">
-      <div className="mb-8">
-        <Link
-          href="/admin/compliance"
-          className="mb-4 inline-flex items-center text-sm text-gray-600 hover:text-gray-900"
-        >
-          ← Back to Compliance Dashboard
-        </Link>
-        <h1 className="text-3xl font-bold">Immutable Document Log</h1>
-        <p className="mt-2 text-gray-600">
-          SHA-256 hashes of all uploaded documents for integrity verification
-        </p>
-      </div>
+      <PageHeader
+        title="Immutable Document Log"
+        description="SHA-256 hashes of all uploaded documents for integrity verification"
+        backHref="/admin/compliance"
+        backLabel="Back to Compliance Dashboard"
+        breadcrumbs={[
+          { label: "Admin", href: "/admin" },
+          { label: "Compliance", href: "/admin/compliance" },
+          { label: "Document Log" },
+        ]}
+      />
 
       {/* Info Banner */}
       <Card className="mb-6 border-blue-200 bg-blue-50 p-6">
@@ -219,4 +218,3 @@ export default async function DocumentHashLogPage() {
     </main>
   );
 }
-

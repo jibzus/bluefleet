@@ -4,12 +4,13 @@ import { prisma } from "@/lib/db";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
+import { PageHeader } from "@/components/layout/PageHeader";
 
 export default async function KYCStatusPage() {
   const user = await getCurrentUser();
 
   if (!user) {
-    redirect("/(auth)/signin");
+    redirect("/signin");
   }
 
   // Get user's KYC records
@@ -52,12 +53,16 @@ export default async function KYCStatusPage() {
 
   return (
     <main className="mx-auto max-w-4xl p-6">
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold">KYC/KYB Status</h1>
-        <p className="mt-2 text-gray-600">
-          Track your verification application status
-        </p>
-      </div>
+      <PageHeader
+        title="KYC/KYB Status"
+        description="Track your verification application status"
+        backHref="/dashboard"
+        backLabel="Back to Dashboard"
+        breadcrumbs={[
+          { label: "Dashboard", href: "/dashboard" },
+          { label: "KYC Status" },
+        ]}
+      />
 
       {!latestKyc ? (
         <Card className="p-8 text-center">
@@ -196,4 +201,3 @@ export default async function KYCStatusPage() {
     </main>
   );
 }
-

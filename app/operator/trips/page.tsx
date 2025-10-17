@@ -4,6 +4,7 @@ import { requireRole } from "@/lib/auth";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { getVesselStatus } from "@/lib/validators/tracking";
+import { PageHeader } from "@/components/layout/PageHeader";
 
 export default async function OperatorTripsPage() {
   const user = await requireRole(["OPERATOR"]);
@@ -75,12 +76,15 @@ export default async function OperatorTripsPage() {
 
   return (
     <main className="mx-auto max-w-7xl p-6">
-      <div className="mb-6">
-        <h1 className="text-3xl font-bold">Active Trips</h1>
-        <p className="mt-1 text-gray-600">
-          Monitor your active vessel charters in real-time
-        </p>
-      </div>
+      <PageHeader
+        title="Active Trips"
+        description="Monitor your active vessel charters in real-time"
+        actions={
+          <Link href="/operator/bookings">
+            <Button variant="outline">Booking Requests</Button>
+          </Link>
+        }
+      />
 
       {/* Statistics */}
       <div className="mb-6 grid gap-4 md:grid-cols-4">
@@ -201,4 +205,3 @@ export default async function OperatorTripsPage() {
     </main>
   );
 }
-

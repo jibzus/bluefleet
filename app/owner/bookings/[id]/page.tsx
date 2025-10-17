@@ -6,6 +6,7 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { formatBookingStatus, calculateBookingCost } from "@/lib/validators/booking";
 import { BookingActions } from "@/components/booking/BookingActions";
+import { PageHeader } from "@/components/layout/PageHeader";
 
 export default async function OwnerBookingDetailPage({
   params,
@@ -58,6 +59,14 @@ export default async function OwnerBookingDetailPage({
   const terms = booking.terms as any;
   const statusInfo = formatBookingStatus(booking.status);
   const thumbnail = booking.vessel.media[0]?.url || "/placeholder-vessel.jpg";
+  const statusBadgeClass =
+    statusInfo.color === "blue"
+      ? "bg-blue-100 text-blue-800"
+      : statusInfo.color === "yellow"
+      ? "bg-yellow-100 text-yellow-800"
+      : statusInfo.color === "green"
+      ? "bg-green-100 text-green-800"
+      : "bg-red-100 text-red-800";
 
   // Calculate cost
   const cost = calculateBookingCost(
@@ -69,33 +78,23 @@ export default async function OwnerBookingDetailPage({
 
   return (
     <main className="mx-auto max-w-6xl p-6">
-      {/* Back Button */}
-      <div className="mb-6">
-        <Link href="/owner/bookings">
-          <Button variant="ghost">← Back to Booking Requests</Button>
-        </Link>
-      </div>
-
-      {/* Header */}
-      <div className="mb-8">
-        <div className="mb-2 flex items-center gap-3">
-          <h1 className="text-3xl font-bold">Booking Request</h1>
-          <span
-            className={`rounded-full px-3 py-1 text-sm font-medium ${
-              statusInfo.color === "blue"
-                ? "bg-blue-100 text-blue-800"
-                : statusInfo.color === "yellow"
-                ? "bg-yellow-100 text-yellow-800"
-                : statusInfo.color === "green"
-                ? "bg-green-100 text-green-800"
-                : "bg-red-100 text-red-800"
-            }`}
-          >
-            {statusInfo.label}
+      <PageHeader
+        title={
+          <span className="inline-flex items-center gap-3">
+            <span>Booking Request</span>
+            <span className={`rounded-full px-3 py-1 text-sm font-medium ${statusBadgeClass}`}>
+              {statusInfo.label}
+            </span>
           </span>
-        </div>
-        <p className="text-gray-600">{statusInfo.description}</p>
-      </div>
+        }
+        description={statusInfo.description}
+        backHref="/owner/bookings"
+        backLabel="Back to Booking Requests"
+        breadcrumbs={[
+          { label: "Booking Requests", href: "/owner/bookings" },
+          { label: specs.name || "Request" },
+        ]}
+      />
 
       <div className="grid gap-8 lg:grid-cols-3">
         {/* Main Content */}
@@ -275,4 +274,3 @@ export default async function OwnerBookingDetailPage({
     </main>
   );
 }
-

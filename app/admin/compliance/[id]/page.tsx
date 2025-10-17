@@ -4,7 +4,7 @@ import { prisma } from "@/lib/db";
 import { getVerificationLog } from "@/lib/compliance/compliance-engine";
 import { Card } from "@/components/ui/card";
 import { ComplianceReviewActions } from "@/components/admin/ComplianceReviewActions";
-import Link from "next/link";
+import { PageHeader } from "@/components/layout/PageHeader";
 
 export default async function ComplianceReviewPage({
   params,
@@ -38,18 +38,17 @@ export default async function ComplianceReviewPage({
 
   return (
     <main className="mx-auto max-w-5xl p-6">
-      <div className="mb-6">
-        <Link
-          href="/admin/compliance"
-          className="mb-4 inline-flex items-center text-sm text-gray-600 hover:text-gray-900"
-        >
-          ← Back to Compliance Dashboard
-        </Link>
-        <h1 className="text-3xl font-bold">Compliance Record Review</h1>
-        <p className="mt-2 text-gray-600">
-          Review and verify compliance documentation
-        </p>
-      </div>
+      <PageHeader
+        title="Compliance Record Review"
+        description="Review and verify compliance documentation"
+        backHref="/admin/compliance"
+        backLabel="Back to Compliance Dashboard"
+        breadcrumbs={[
+          { label: "Admin", href: "/admin" },
+          { label: "Compliance", href: "/admin/compliance" },
+          { label: compliance.type },
+        ]}
+      />
 
       <div className="grid gap-6 lg:grid-cols-3">
         {/* Main Content */}
@@ -294,4 +293,3 @@ export default async function ComplianceReviewPage({
     </main>
   );
 }
-

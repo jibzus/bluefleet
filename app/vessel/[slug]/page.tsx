@@ -5,6 +5,7 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { getCurrentUser } from "@/lib/auth";
 import { BookingRequestDialog } from "@/components/booking/BookingRequestDialog";
+import { PageHeader } from "@/components/layout/PageHeader";
 
 export default async function VesselDetailPage({
   params,
@@ -44,12 +45,29 @@ export default async function VesselDetailPage({
 
   return (
     <main className="mx-auto max-w-6xl p-6">
-      {/* Back Button */}
-      <div className="mb-6">
-        <Link href="/search">
-          <Button variant="ghost">← Back to Search</Button>
-        </Link>
-      </div>
+      <PageHeader
+        title={
+          <span className="inline-flex items-center gap-3">
+            <span>{specs.name || "Unnamed Vessel"}</span>
+            <span
+              className={`rounded-full px-3 py-1 text-xs font-medium ${
+                vessel.status === "ACTIVE"
+                  ? "bg-green-100 text-green-800"
+                  : "bg-gray-100 text-gray-800"
+              }`}
+            >
+              {vessel.status}
+            </span>
+          </span>
+        }
+        description={`${vessel.type} • ${vessel.homePort}`}
+        backHref="/search"
+        backLabel="Back to Search"
+        breadcrumbs={[
+          { label: "Search", href: "/search" },
+          { label: specs.name || vessel.slug },
+        ]}
+      />
 
       {/* Image Gallery */}
       <div className="mb-8">
@@ -83,22 +101,6 @@ export default async function VesselDetailPage({
       <div className="grid gap-8 lg:grid-cols-3">
         {/* Main Content */}
         <div className="lg:col-span-2">
-          {/* Header */}
-          <div className="mb-6">
-            <div className="mb-2 flex items-center gap-3">
-              <h1 className="text-3xl font-bold">{specs.name || "Unnamed Vessel"}</h1>
-              <span
-                className={`rounded-full px-3 py-1 text-xs font-medium ${
-                  vessel.status === "ACTIVE"
-                    ? "bg-green-100 text-green-800"
-                    : "bg-gray-100 text-gray-800"
-                }`}
-              >
-                {vessel.status}
-              </span>
-            </div>
-            <p className="text-gray-600">{vessel.type} • {vessel.homePort}</p>
-          </div>
 
           {/* Description */}
           {specs.description && (

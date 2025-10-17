@@ -5,6 +5,7 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { notFound } from "next/navigation";
 import { UserRoleForm } from "@/components/admin/UserRoleForm";
+import { PageHeader } from "@/components/layout/PageHeader";
 
 export default async function AdminUserDetailPage({
   params,
@@ -69,16 +70,17 @@ export default async function AdminUserDetailPage({
 
   return (
     <main className="mx-auto max-w-7xl p-6">
-      <div className="mb-6">
-        <Link
-          href="/admin/users"
-          className="text-sm text-blue-600 hover:underline mb-2 block"
-        >
-          ← Back to User Management
-        </Link>
-        <h1 className="text-3xl font-bold">User Details</h1>
-        <p className="mt-1 text-gray-600">View and manage user information</p>
-      </div>
+      <PageHeader
+        title="User Details"
+        description="View and manage user information"
+        backHref="/admin/users"
+        backLabel="Back to User Management"
+        breadcrumbs={[
+          { label: "Admin", href: "/admin" },
+          { label: "Users", href: "/admin/users" },
+          { label: user.name || user.email || "User" },
+        ]}
+      />
 
       <div className="grid gap-6 lg:grid-cols-3">
         {/* User Info */}
@@ -264,4 +266,3 @@ export default async function AdminUserDetailPage({
     </main>
   );
 }
-

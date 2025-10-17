@@ -1,8 +1,9 @@
+import Link from "next/link";
 import { redirect } from "next/navigation";
 import { requireRole } from "@/lib/auth";
 import { prisma } from "@/lib/db";
 import { Card } from "@/components/ui/card";
-import Link from "next/link";
+import { PageHeader } from "@/components/layout/PageHeader";
 
 export default async function VerificationAuditPage() {
   const user = await requireRole(["ADMIN"]);
@@ -42,18 +43,17 @@ export default async function VerificationAuditPage() {
 
   return (
     <main className="mx-auto max-w-7xl p-6">
-      <div className="mb-8">
-        <Link
-          href="/admin/compliance"
-          className="mb-4 inline-flex items-center text-sm text-gray-600 hover:text-gray-900"
-        >
-          ← Back to Compliance Dashboard
-        </Link>
-        <h1 className="text-3xl font-bold">Verification Audit Trail</h1>
-        <p className="mt-2 text-gray-600">
-          Complete log of all compliance verification actions
-        </p>
-      </div>
+      <PageHeader
+        title="Verification Audit Trail"
+        description="Complete log of all compliance verification actions"
+        backHref="/admin/compliance"
+        backLabel="Back to Compliance Dashboard"
+        breadcrumbs={[
+          { label: "Admin", href: "/admin" },
+          { label: "Compliance", href: "/admin/compliance" },
+          { label: "Audit Trail" },
+        ]}
+      />
 
       {/* Info Banner */}
       <Card className="mb-6 border-blue-200 bg-blue-50 p-6">
@@ -255,4 +255,3 @@ export default async function VerificationAuditPage() {
     </main>
   );
 }
-

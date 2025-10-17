@@ -109,6 +109,5 @@ export async function signUpAction(
 
 export async function signOutAction() {
   await signOut({ redirect: false });
-  redirect("/(auth)/signin");
+  redirect("/signin");
 }
-

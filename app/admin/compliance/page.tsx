@@ -4,6 +4,7 @@ import { prisma } from "@/lib/db";
 import { getComplianceStats, getExpiringCompliance } from "@/lib/compliance/compliance-engine";
 import { Card } from "@/components/ui/card";
 import Link from "next/link";
+import { PageHeader } from "@/components/layout/PageHeader";
 
 export default async function AdminCompliancePage() {
   const user = await requireRole(["ADMIN"]);
@@ -32,12 +33,16 @@ export default async function AdminCompliancePage() {
 
   return (
     <main className="mx-auto max-w-7xl p-6">
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold">Compliance Dashboard</h1>
-        <p className="mt-2 text-gray-600">
-          Monitor vessel compliance, certifications, and expiry alerts
-        </p>
-      </div>
+      <PageHeader
+        title="Compliance Dashboard"
+        description="Monitor vessel compliance, certifications, and expiry alerts"
+        breadcrumbs={[
+          { label: "Admin", href: "/admin" },
+          { label: "Compliance" },
+        ]}
+        backHref="/admin"
+        backLabel="Back to Admin Dashboard"
+      />
 
       {/* Statistics Cards */}
       <div className="mb-8 grid gap-6 md:grid-cols-4">
@@ -263,4 +268,3 @@ export default async function AdminCompliancePage() {
     </main>
   );
 }
-

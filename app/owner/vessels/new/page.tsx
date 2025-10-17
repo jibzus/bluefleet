@@ -1,6 +1,7 @@
 import { redirect } from "next/navigation";
 import { requireRole } from "@/lib/auth";
 import { VesselForm } from "@/components/vessel/VesselForm";
+import { PageHeader } from "@/components/layout/PageHeader";
 
 export default async function NewVesselPage() {
   const user = await requireRole(["OWNER", "ADMIN"]);
@@ -11,15 +12,18 @@ export default async function NewVesselPage() {
 
   return (
     <main className="mx-auto max-w-6xl p-6">
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold">Add New Vessel</h1>
-        <p className="mt-2 text-gray-600">
-          Create a new vessel listing with complete specifications
-        </p>
-      </div>
+      <PageHeader
+        title="Add New Vessel"
+        description="Create a new vessel listing with complete specifications"
+        backHref="/owner/vessels"
+        backLabel="Back to My Vessels"
+        breadcrumbs={[
+          { label: "Vessels", href: "/owner/vessels" },
+          { label: "New" },
+        ]}
+      />
 
       <VesselForm userId={user.id} />
     </main>
   );
 }
-

@@ -3,6 +3,7 @@ import { requireRole } from "@/lib/auth";
 import { prisma } from "@/lib/db";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { PageHeader } from "@/components/layout/PageHeader";
 
 export default async function AdminDashboardPage() {
   const user = await requireRole(["ADMIN"]);
@@ -67,12 +68,11 @@ export default async function AdminDashboardPage() {
 
   return (
     <main className="mx-auto max-w-7xl p-6">
-      <div className="mb-6">
-        <h1 className="text-3xl font-bold">Admin Dashboard</h1>
-        <p className="mt-1 text-gray-600">
-          Platform overview and management tools
-        </p>
-      </div>
+      <PageHeader
+        title="Admin Dashboard"
+        description="Platform overview and management tools"
+        breadcrumbs={[{ label: "Admin", href: "/admin" }]}
+      />
 
       {/* Statistics */}
       <div className="mb-6 grid gap-4 md:grid-cols-3 lg:grid-cols-6">
@@ -220,4 +220,3 @@ export default async function AdminDashboardPage() {
     </main>
   );
 }
-

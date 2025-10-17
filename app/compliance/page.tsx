@@ -4,6 +4,7 @@ import { prisma } from "@/lib/db";
 import { getComplianceStats, getExpiringCompliance } from "@/lib/compliance/compliance-engine";
 import { Card } from "@/components/ui/card";
 import Link from "next/link";
+import { PageHeader } from "@/components/layout/PageHeader";
 
 export default async function CompliancePage() {
   const user = await requireRole(["REGULATOR", "ADMIN"]);
@@ -34,24 +35,22 @@ export default async function CompliancePage() {
 
   return (
     <main className="mx-auto max-w-7xl p-6">
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold">
-          {isRegulator ? "Regulator Console" : "Compliance Dashboard"}
-        </h1>
-        <p className="mt-2 text-gray-600">
-          {isRegulator
+      <PageHeader
+        title={isRegulator ? "Regulator Console" : "Compliance Dashboard"}
+        description={
+          isRegulator
             ? "Read-only view of vessel compliance and certifications"
-            : "Monitor vessel compliance, certifications, and expiry alerts"}
-        </p>
-        {isRegulator && (
-          <div className="mt-4 rounded-lg border-blue-200 bg-blue-50 p-4">
-            <p className="text-sm text-blue-800">
-              🔒 <strong>Read-Only Access:</strong> You have view-only permissions.
-              All compliance data is immutable and verified by administrators.
-            </p>
-          </div>
-        )}
-      </div>
+            : "Monitor vessel compliance, certifications, and expiry alerts"
+        }
+      />
+      {isRegulator && (
+        <div className="mb-6 rounded-lg border-blue-200 bg-blue-50 p-4">
+          <p className="text-sm text-blue-800">
+            🔒 <strong>Read-Only Access:</strong> You have view-only permissions.
+            All compliance data is immutable and verified by administrators.
+          </p>
+        </div>
+      )}
 
       {/* Statistics Cards */}
       <div className="mb-8 grid gap-6 md:grid-cols-4">
@@ -279,4 +278,3 @@ export default async function CompliancePage() {
     </main>
   );
 }
-

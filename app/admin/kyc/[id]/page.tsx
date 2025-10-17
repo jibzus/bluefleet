@@ -3,6 +3,7 @@ import { requireRole } from "@/lib/auth";
 import { prisma } from "@/lib/db";
 import { Card } from "@/components/ui/card";
 import { KYCReviewActions } from "@/components/admin/KYCReviewActions";
+import { PageHeader } from "@/components/layout/PageHeader";
 
 export default async function KYCReviewPage({ params }: { params: { id: string } }) {
   const user = await requireRole(["ADMIN"]);
@@ -46,12 +47,17 @@ export default async function KYCReviewPage({ params }: { params: { id: string }
 
   return (
     <main className="mx-auto max-w-4xl p-6">
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold">KYC/KYB Review</h1>
-        <p className="mt-2 text-gray-600">
-          Review application for {kycRecord.user.name || kycRecord.user.email}
-        </p>
-      </div>
+      <PageHeader
+        title="KYC/KYB Review"
+        description={`Review application for ${kycRecord.user.name || kycRecord.user.email}`}
+        backHref="/admin/kyc"
+        backLabel="Back to KYC Dashboard"
+        breadcrumbs={[
+          { label: "Admin", href: "/admin" },
+          { label: "KYC", href: "/admin/kyc" },
+          { label: kycRecord.user.name || kycRecord.user.email || "Application" },
+        ]}
+      />
 
       <div className="mb-6 flex items-center justify-between rounded-lg bg-gray-50 p-4">
         <div>
@@ -282,4 +288,3 @@ export default async function KYCReviewPage({ params }: { params: { id: string }
     </main>
   );
 }
-

@@ -3,6 +3,7 @@ import { requireRole } from "@/lib/auth";
 import { prisma } from "@/lib/db";
 import { Card } from "@/components/ui/card";
 import Link from "next/link";
+import { PageHeader } from "@/components/layout/PageHeader";
 
 export default async function AdminKYCPage() {
   const user = await requireRole(["ADMIN"]);
@@ -32,12 +33,16 @@ export default async function AdminKYCPage() {
 
   return (
     <main className="mx-auto max-w-7xl p-6">
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold">KYC/KYB Review Dashboard</h1>
-        <p className="mt-2 text-gray-600">
-          Review and manage user verification applications
-        </p>
-      </div>
+      <PageHeader
+        title="KYC/KYB Review Dashboard"
+        description="Review and manage user verification applications"
+        backHref="/admin"
+        backLabel="Back to Admin Dashboard"
+        breadcrumbs={[
+          { label: "Admin", href: "/admin" },
+          { label: "KYC" },
+        ]}
+      />
 
       <div className="mb-8 grid gap-6 md:grid-cols-3">
         <Card className="p-6">
@@ -139,4 +144,3 @@ export default async function AdminKYCPage() {
     </main>
   );
 }
-

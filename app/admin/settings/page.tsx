@@ -1,7 +1,7 @@
-import Link from "next/link";
 import { requireRole } from "@/lib/auth";
 import { Card } from "@/components/ui/card";
 import { SettingsForm } from "@/components/admin/SettingsForm";
+import { PageHeader } from "@/components/layout/PageHeader";
 
 export default async function AdminSettingsPage() {
   const user = await requireRole(["ADMIN"]);
@@ -18,18 +18,16 @@ export default async function AdminSettingsPage() {
 
   return (
     <main className="mx-auto max-w-4xl p-6">
-      <div className="mb-6">
-        <Link
-          href="/admin"
-          className="text-sm text-blue-600 hover:underline mb-2 block"
-        >
-          ← Back to Admin Dashboard
-        </Link>
-        <h1 className="text-3xl font-bold">Platform Settings</h1>
-        <p className="mt-1 text-gray-600">
-          Configure platform fees, payment providers, and feature flags
-        </p>
-      </div>
+      <PageHeader
+        title="Platform Settings"
+        description="Configure platform fees, payment providers, and feature flags"
+        backHref="/admin"
+        backLabel="Back to Admin Dashboard"
+        breadcrumbs={[
+          { label: "Admin", href: "/admin" },
+          { label: "Settings" },
+        ]}
+      />
 
       <div className="space-y-6">
         {/* Payment Settings */}
@@ -165,4 +163,3 @@ export default async function AdminSettingsPage() {
     </main>
   );
 }
-

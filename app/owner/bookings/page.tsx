@@ -4,6 +4,7 @@ import { requireRole } from "@/lib/auth";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { formatBookingStatus } from "@/lib/validators/booking";
+import { PageHeader } from "@/components/layout/PageHeader";
 
 export default async function OwnerBookingsPage() {
   const user = await requireRole(["OWNER"]);
@@ -55,13 +56,15 @@ export default async function OwnerBookingsPage() {
 
   return (
     <main className="mx-auto max-w-7xl p-6">
-      {/* Header */}
-      <div className="mb-8">
-        <h1 className="mb-2 text-3xl font-bold">Booking Requests</h1>
-        <p className="text-gray-600">
-          Manage booking requests for your vessels
-        </p>
-      </div>
+      <PageHeader
+        title="Booking Requests"
+        description="Manage booking requests for your vessels"
+        actions={
+          <Link href="/owner/vessels">
+            <Button variant="outline">Manage Vessels</Button>
+          </Link>
+        }
+      />
 
       {/* Statistics */}
       <div className="mb-8 grid gap-4 md:grid-cols-5">
@@ -215,4 +218,3 @@ export default async function OwnerBookingsPage() {
     </main>
   );
 }
-

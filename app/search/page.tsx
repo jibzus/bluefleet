@@ -2,6 +2,7 @@ import { Suspense } from "react";
 import { SearchResults } from "@/components/search/SearchResults";
 import { SearchFilters } from "@/components/search/SearchFilters";
 import { SearchBar } from "@/components/search/SearchBar";
+import { PageHeader } from "@/components/layout/PageHeader";
 
 export default function SearchPage({
   searchParams,
@@ -10,13 +11,10 @@ export default function SearchPage({
 }) {
   return (
     <main className="mx-auto max-w-7xl p-6">
-      {/* Header */}
-      <div className="mb-6">
-        <h1 className="mb-2 text-3xl font-bold">Discover Vessels</h1>
-        <p className="text-gray-600">
-          Find the perfect vessel for your maritime operations
-        </p>
-      </div>
+      <PageHeader
+        title="Discover Vessels"
+        description="Find the perfect vessel for your maritime operations"
+      />
 
       {/* Search Bar */}
       <div className="mb-6">

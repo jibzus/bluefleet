@@ -5,6 +5,7 @@ import { requireRole } from "@/lib/auth";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { TrackingDashboard } from "@/components/tracking/TrackingDashboard";
+import { PageHeader } from "@/components/layout/PageHeader";
 
 export default async function TripTrackingPage({
   params,
@@ -46,24 +47,21 @@ export default async function TripTrackingPage({
 
   return (
     <main className="mx-auto max-w-7xl p-6">
-      {/* Header */}
-      <div className="mb-6 flex items-center justify-between">
-        <div>
-          <Link
-            href="/operator/trips"
-            className="text-sm text-blue-600 hover:underline mb-2 block"
-          >
-            ← Back to Active Trips
+      <PageHeader
+        title={specs.name}
+        description={`${booking.vessel.type} • ${booking.vessel.homePort}`}
+        backHref="/operator/trips"
+        backLabel="Back to Active Trips"
+        breadcrumbs={[
+          { label: "Trips", href: "/operator/trips" },
+          { label: specs.name },
+        ]}
+        actions={
+          <Link href={`/operator/bookings/${booking.id}`}>
+            <Button variant="outline">View Booking Details</Button>
           </Link>
-          <h1 className="text-3xl font-bold">{specs.name}</h1>
-          <p className="mt-1 text-gray-600">
-            {booking.vessel.type} • {booking.vessel.homePort}
-          </p>
-        </div>
-        <Link href={`/operator/bookings/${booking.id}`}>
-          <Button variant="outline">View Booking Details</Button>
-        </Link>
-      </div>
+        }
+      />
 
       {/* Charter Info */}
       <Card className="p-6 mb-6">
@@ -102,4 +100,3 @@ export default async function TripTrackingPage({
     </main>
   );
 }
-

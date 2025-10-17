@@ -3,14 +3,14 @@ import { getCurrentUser } from "@/lib/auth";
 import { prisma } from "@/lib/db";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { signOutAction } from "@/app/(auth)/actions";
 import Link from "next/link";
+import { PageHeader } from "@/components/layout/PageHeader";
 
 export default async function Dashboard() {
   const user = await getCurrentUser();
 
   if (!user) {
-    redirect("/(auth)/signin");
+    redirect("/signin");
   }
 
   // Get user's KYC status
@@ -70,17 +70,10 @@ export default async function Dashboard() {
 
   return (
     <main className="mx-auto max-w-4xl p-6">
-      <div className="mb-6 flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold">{content.title}</h1>
-          <p className="mt-1 text-gray-600">Welcome back, {user.name || user.email}</p>
-        </div>
-        <form action={signOutAction}>
-          <Button type="submit" variant="outline">
-            Sign out
-          </Button>
-        </form>
-      </div>
+      <PageHeader
+        title={content.title}
+        description={`Welcome back, ${user.name || user.email}`}
+      />
 
       {/* KYC Status Banner */}
       {!kycRecord && (
