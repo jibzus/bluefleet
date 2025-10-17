@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef } from "react";
-import maplibregl, { type Map, type Marker, type Popup } from "maplibre-gl";
+import maplibregl, { type Map as MaplibreMap, type Marker, type Popup } from "maplibre-gl";
 import "maplibre-gl/dist/maplibre-gl.css";
 
 import { useMockFleetPositions } from "@/lib/useMockFleetPositions";
@@ -74,7 +74,7 @@ const updatePopupContent = (popup: Popup | undefined, vessel: VesselPosition) =>
 
 export function LiveFleetMap() {
   const mapContainerRef = useRef<HTMLDivElement | null>(null);
-  const mapRef = useRef<Map | null>(null);
+  const mapRef = useRef<MaplibreMap | null>(null);
   const markersRef = useRef<Map<string, Marker>>(new Map());
   const positions = useMockFleetPositions();
 
