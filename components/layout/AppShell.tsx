@@ -5,6 +5,7 @@ import { NavLink } from "./NavLink";
 import { Button } from "@/components/ui/button";
 import { signOutAction } from "@/app/(auth)/actions";
 import { cn } from "@/lib/utils";
+import { ThemeToggle } from "./ThemeToggle";
 
 type NavConfig = {
   label: string;
@@ -95,6 +96,7 @@ export async function AppShell({
             </div>
 
             <div className="flex items-center gap-3">
+              <ThemeToggle />
               {user ? (
                 <>
                   <span className="hidden text-sm text-muted-foreground md:block">
