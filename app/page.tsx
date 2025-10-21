@@ -1,5 +1,9 @@
 import dynamic from "next/dynamic";
 import Link from "next/link";
+import { HeroSection } from "@/components/landing/HeroSection";
+import { HowItWorks } from "@/components/landing/HowItWorks";
+import { BenefitsGrid } from "@/components/landing/BenefitsGrid";
+import { ChatButton } from "@/components/landing/ChatButton";
 import { Button } from "@/components/ui/button";
 import { getCurrentUser } from "@/lib/auth";
 import { AppShell } from "@/components/layout/AppShell";
@@ -13,85 +17,90 @@ export default async function Home() {
 
   return (
     <AppShell>
-      <main className="mx-auto max-w-5xl p-6">
-        <div className="mb-8">
-          <h1 className="mb-2 text-4xl font-bold">BlueFleet</h1>
-          <p className="text-lg text-gray-600">
-            Digital Vessel Leasing Marketplace
-          </p>
-        </div>
-
-        <section className="mb-12">
-          <div className="rounded-2xl border border-slate-200 bg-white shadow-sm">
-            <div className="border-b border-slate-100 px-6 py-4">
-              <h2 className="text-lg font-semibold text-slate-900">
-                Global Live Fleet Preview
-              </h2>
-              <p className="text-sm text-slate-500">
-                Follow real-time vessel activity across major offshore corridors. Data shown
-                below is simulated while we connect to live feeds.
-              </p>
-            </div>
-            <div className="h-[420px] overflow-hidden rounded-b-2xl">
-              <LiveFleetMap />
+      <main className="flex flex-col gap-20 pb-24">
+        <HeroSection />
+        <section className="fade-in">
+          <div className="mx-auto max-w-6xl px-6">
+            <div className="slide-up overflow-hidden rounded-3xl border border-border bg-card shadow-xl">
+              <div className="border-b border-border px-6 py-6">
+                <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+                  <div>
+                    <h2 className="text-2xl font-semibold">
+                      Global Live Fleet Preview
+                    </h2>
+                    <p className="text-sm text-muted-foreground">
+                      Follow real-time vessel activity across major offshore
+                      corridors. Data shown below is simulated while live feeds
+                      finalize.
+                    </p>
+                  </div>
+                  <Link href="/search">
+                    <Button variant="outline" size="lg">
+                      Explore Vessels
+                    </Button>
+                  </Link>
+                </div>
+              </div>
+              <div className="h-[420px] overflow-hidden">
+                <LiveFleetMap />
+              </div>
             </div>
           </div>
         </section>
-
-        {user ? (
-          <div className="rounded-lg bg-blue-50 p-6">
-            <p className="mb-4 text-sm text-blue-900">
-              Welcome back, <strong>{user.name || user.email}</strong>!
-            </p>
-            <div className="flex flex-wrap gap-3">
-              <Link href="/dashboard">
-                <Button>Go to Dashboard</Button>
-              </Link>
-              <Link href="/search">
-                <Button variant="outline">Search Vessels</Button>
-              </Link>
-            </div>
+        <HowItWorks />
+        <BenefitsGrid />
+        <section className="fade-in">
+          <div className="mx-auto max-w-5xl px-6">
+            {user ? (
+              <div className="slide-up rounded-2xl border border-primary/20 bg-primary/10 p-8 text-primary shadow-sm backdrop-blur-sm dark:bg-primary/20 dark:text-primary-foreground">
+                <p className="mb-4 text-sm font-medium text-primary/80 dark:text-primary-foreground/80">
+                  Welcome back,{" "}
+                  <span className="font-semibold">
+                    {user.name || user.email}
+                  </span>
+                  !
+                </p>
+                <div className="flex flex-wrap gap-3">
+                  <Link href="/dashboard">
+                    <Button size="lg">Go to Dashboard</Button>
+                  </Link>
+                  <Link href="/search">
+                    <Button variant="outline" size="lg">
+                      Search Vessels
+                    </Button>
+                  </Link>
+                </div>
+              </div>
+            ) : (
+              <div className="slide-up rounded-2xl border border-border bg-card p-8 shadow-sm">
+                <h3 className="mb-2 text-2xl font-semibold">
+                  Get started with BlueFleet
+                </h3>
+                <p className="mb-6 text-muted-foreground">
+                  Create a free account to list vessels, manage bookings, and
+                  connect with verified operators.
+                </p>
+                <div className="flex flex-wrap gap-3">
+                  <Link href="/signin">
+                    <Button size="lg">Sign in</Button>
+                  </Link>
+                  <Link href="/signup">
+                    <Button variant="outline" size="lg">
+                      Create account
+                    </Button>
+                  </Link>
+                  <Link href="/search">
+                    <Button variant="ghost" size="lg">
+                      Browse vessels
+                    </Button>
+                  </Link>
+                </div>
+              </div>
+            )}
           </div>
-        ) : (
-          <div>
-            <p className="mb-6 text-gray-600">
-              Start by signing in or exploring available vessels.
-            </p>
-            <div className="flex flex-wrap gap-3">
-              <Link href="/signin">
-                <Button>Sign in</Button>
-              </Link>
-              <Link href="/signup">
-                <Button variant="outline">Create account</Button>
-              </Link>
-              <Link href="/search">
-                <Button variant="ghost">Browse vessels</Button>
-              </Link>
-            </div>
-          </div>
-        )}
-
-        <div className="mt-12 grid gap-6 md:grid-cols-3">
-          <div className="rounded-lg border p-6">
-            <h3 className="mb-2 font-semibold">For Operators</h3>
-            <p className="text-sm text-gray-600">
-              Find and lease vessels for your maritime operations with transparent pricing and compliance.
-            </p>
-          </div>
-          <div className="rounded-lg border p-6">
-            <h3 className="mb-2 font-semibold">For Owners</h3>
-            <p className="text-sm text-gray-600">
-              List your vessels and connect with verified operators. Manage bookings and track revenue.
-            </p>
-          </div>
-          <div className="rounded-lg border p-6">
-            <h3 className="mb-2 font-semibold">Compliance First</h3>
-            <p className="text-sm text-gray-600">
-              Built-in compliance tracking, immutable documentation, and regulatory oversight.
-            </p>
-          </div>
-        </div>
+        </section>
       </main>
+      <ChatButton />
     </AppShell>
   );
 }

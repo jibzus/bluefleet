@@ -1,10 +1,13 @@
+import Link from "next/link";
 import { redirect } from "next/navigation";
+import { Ship, CheckCircle2, ClipboardList, Wrench, TrendingUp } from "lucide-react";
 import { requireRole } from "@/lib/auth";
 import { prisma } from "@/lib/db";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import Link from "next/link";
 import { PageHeader } from "@/components/layout/PageHeader";
+import { StatsCard } from "@/components/ui/stats-card";
+import { StatusChip } from "@/components/ui/status-chip";
 
 export default async function OwnerVesselsPage() {
   const user = await requireRole(["OWNER", "ADMIN"]);
@@ -13,15 +16,12 @@ export default async function OwnerVesselsPage() {
     redirect("/dashboard");
   }
 
-  // Get user's vessels
   const vessels = await prisma.vessel.findMany({
-    where: {
-      ownerId: user.id,
-    },
+    where: { ownerId: user.id },
     include: {
       media: {
         orderBy: { sort: "asc" },
-        take: 1, // Get first image for thumbnail
+        take: 1,
       },
       certs: true,
       availability: true,
@@ -33,152 +33,109 @@ export default async function OwnerVesselsPage() {
         },
       },
     },
-    orderBy: {
-      createdAt: "desc",
-    },
+    orderBy: { createdAt: "desc" },
   });
 
-  // Calculate statistics
   const totalVessels = vessels.length;
   const activeVessels = vessels.filter((v) => v.status === "ACTIVE").length;
   const draftVessels = vessels.filter((v) => v.status === "DRAFT").length;
   const totalBookings = vessels.reduce((sum, v) => sum + v.bookings.length, 0);
 
   return (
-    <main className="mx-auto max-w-7xl p-6">
+    <main className="mx-auto flex w-full max-w-7xl flex-col gap-10 px-6 pb-24">
       <PageHeader
         title="My Vessels"
         description="Manage your vessel listings and availability"
         actions={
           <Link href="/owner/vessels/new">
-            <Button className="bg-primary text-white">+ Add New Vessel</Button>
+            <Button size="lg">+ Add New Vessel</Button>
           </Link>
         }
       />
 
-      {/* Statistics Cards */}
-      <div className="mb-8 grid gap-6 md:grid-cols-4">
-        <Card className="p-6">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm font-medium text-gray-600">Total Vessels</p>
-              <p className="mt-2 text-3xl font-bold">{totalVessels}</p>
-            </div>
-            <div className="text-4xl">🚢</div>
-          </div>
-        </Card>
+      <section className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
+        <StatsCard label="Total Vessels" value={totalVessels} icon={Ship} variant="primary" />
+        <StatsCard label="Active" value={activeVessels} icon={CheckCircle2} variant="success" />
+        <StatsCard label="Draft" value={draftVessels} icon={Wrench} variant="warning" />
+        <StatsCard
+          label="Open Bookings"
+          value={totalBookings}
+          icon={ClipboardList}
+          variant="info"
+        />
+      </section>
 
-        <Card className="p-6">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm font-medium text-gray-600">Active</p>
-              <p className="mt-2 text-3xl font-bold text-green-600">{activeVessels}</p>
-            </div>
-            <div className="text-4xl">✅</div>
-          </div>
-        </Card>
-
-        <Card className="p-6">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm font-medium text-gray-600">Draft</p>
-              <p className="mt-2 text-3xl font-bold text-yellow-600">{draftVessels}</p>
-            </div>
-            <div className="text-4xl">📝</div>
-          </div>
-        </Card>
-
-        <Card className="p-6">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm font-medium text-gray-600">Bookings</p>
-              <p className="mt-2 text-3xl font-bold text-blue-600">{totalBookings}</p>
-            </div>
-            <div className="text-4xl">📅</div>
-          </div>
-        </Card>
-      </div>
-
-      {/* Vessels List */}
       {vessels.length === 0 ? (
-        <Card className="p-12 text-center">
-          <div className="mx-auto mb-4 text-6xl">🚢</div>
-          <h2 className="mb-2 text-xl font-semibold">No vessels yet</h2>
-          <p className="mb-6 text-gray-600">
-            Get started by adding your first vessel listing
+        <Card className="slide-up flex flex-col items-center gap-4 rounded-3xl border border-dashed border-border/70 bg-muted/30 p-12 text-center">
+          <Ship className="h-12 w-12 text-muted-foreground" />
+          <h2 className="text-2xl font-semibold text-foreground">No vessels yet</h2>
+          <p className="max-w-md text-sm text-muted-foreground">
+            Get started by adding your first vessel listing.
           </p>
           <Link href="/owner/vessels/new">
-            <Button className="bg-primary text-white">
-              + Add Your First Vessel
-            </Button>
+            <Button size="lg">+ Add Your First Vessel</Button>
           </Link>
         </Card>
       ) : (
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
           {vessels.map((vessel) => {
-            const specs = vessel.specs as any;
+            const specs = vessel.specs as Record<string, any>;
             const pricing = specs.pricing || {};
             const thumbnail = vessel.media[0]?.url || "/placeholder-vessel.jpg";
 
             return (
-              <Card key={vessel.id} className="overflow-hidden">
-                {/* Vessel Image */}
-                <div className="relative h-48 bg-gray-200">
+              <Card
+                key={vessel.id}
+                className="slide-up overflow-hidden rounded-3xl border border-border bg-card shadow-sm transition-all hover:-translate-y-1 hover:shadow-xl"
+              >
+                <div className="relative h-56 bg-muted">
                   <img
                     src={thumbnail}
                     alt={specs.name || "Vessel"}
                     className="h-full w-full object-cover"
                   />
-                  <div className="absolute right-2 top-2">
-                    <span
-                      className={`rounded-full px-3 py-1 text-xs font-medium ${
+                  <div className="absolute right-4 top-4">
+                    <StatusChip
+                      label={vessel.status}
+                      variant={
                         vessel.status === "ACTIVE"
-                          ? "bg-green-100 text-green-800"
+                          ? "success"
                           : vessel.status === "DRAFT"
-                          ? "bg-yellow-100 text-yellow-800"
-                          : "bg-gray-100 text-gray-800"
-                      }`}
-                    >
-                      {vessel.status}
-                    </span>
+                          ? "warning"
+                          : "muted"
+                      }
+                    />
                   </div>
                 </div>
-
-                {/* Vessel Info */}
-                <div className="p-6">
-                  <h3 className="mb-2 text-lg font-semibold">
-                    {specs.name || "Unnamed Vessel"}
-                  </h3>
-                  <div className="mb-4 space-y-1 text-sm text-gray-600">
-                    <p>
-                      <span className="font-medium">Type:</span> {vessel.type}
-                    </p>
-                    <p>
-                      <span className="font-medium">Home Port:</span>{" "}
-                      {vessel.homePort || "N/A"}
-                    </p>
-                    {pricing.dailyRate && (
-                      <p>
-                        <span className="font-medium">Rate:</span>{" "}
-                        {pricing.currency || "USD"} {pricing.dailyRate.toLocaleString()}/day
-                      </p>
-                    )}
-                    <p>
-                      <span className="font-medium">Bookings:</span>{" "}
-                      {vessel.bookings.length}
-                    </p>
+                <div className="flex flex-col gap-5 p-6 sm:p-8">
+                  <div className="space-y-2">
+                    <h3 className="text-xl font-semibold text-foreground">
+                      {specs.name || "Unnamed Vessel"}
+                    </h3>
+                    <div className="space-y-2 text-sm text-muted-foreground">
+                      <InfoRow label="Type" value={vessel.type} />
+                      <InfoRow label="Home Port" value={vessel.homePort || "N/A"} />
+                      {pricing.dailyRate ? (
+                        <InfoRow
+                          label="Day Rate"
+                          value={`${pricing.currency || "USD"} ${pricing.dailyRate.toLocaleString()}/day`}
+                        />
+                      ) : null}
+                      <InfoRow
+                        label="Active Bookings"
+                        value={vessel.bookings.length.toString()}
+                      />
+                    </div>
                   </div>
-
-                  {/* Actions */}
-                  <div className="flex gap-2">
+                  <div className="flex flex-wrap gap-3">
                     <Link href={`/owner/vessels/${vessel.id}`} className="flex-1">
-                      <Button variant="outline" className="w-full">
-                        Edit
+                      <Button variant="outline" size="lg" className="w-full">
+                        Edit Listing
                       </Button>
                     </Link>
                     <Link href={`/vessel/${vessel.slug}`} className="flex-1">
-                      <Button variant="ghost" className="w-full">
-                        View
+                      <Button variant="ghost" size="lg" className="w-full">
+                        Preview
                       </Button>
                     </Link>
                   </div>
@@ -189,42 +146,54 @@ export default async function OwnerVesselsPage() {
         </div>
       )}
 
-      {/* Quick Actions */}
-      {vessels.length > 0 && (
-        <div className="mt-8 grid gap-4 md:grid-cols-3">
-          <Card className="p-6">
-            <h3 className="mb-2 font-semibold">Bulk Update Availability</h3>
-            <p className="mb-4 text-sm text-gray-600">
-              Update availability for multiple vessels at once
+      {vessels.length > 0 ? (
+        <section className="grid gap-4 md:grid-cols-3">
+          <Card className="slide-up rounded-3xl border border-border bg-card p-6 shadow-sm">
+            <h3 className="mb-2 text-lg font-semibold text-foreground">
+              Bulk Update Availability
+            </h3>
+            <p className="mb-4 text-sm text-muted-foreground">
+              Update availability for multiple vessels at once.
             </p>
-            <Button variant="outline" className="w-full" disabled>
+            <Button variant="outline" size="lg" className="w-full" disabled>
               Coming Soon
             </Button>
           </Card>
-
-          <Card className="p-6">
-            <h3 className="mb-2 font-semibold">Export Vessel Data</h3>
-            <p className="mb-4 text-sm text-gray-600">
-              Download your vessel listings as CSV
+          <Card className="slide-up rounded-3xl border border-border bg-card p-6 shadow-sm">
+            <h3 className="mb-2 text-lg font-semibold text-foreground">
+              Export Vessel Data
+            </h3>
+            <p className="mb-4 text-sm text-muted-foreground">
+              Download your vessel listings as CSV.
             </p>
-            <Button variant="outline" className="w-full" disabled>
+            <Button variant="outline" size="lg" className="w-full" disabled>
               Export CSV
             </Button>
           </Card>
-
-          <Card className="p-6">
-            <h3 className="mb-2 font-semibold">Performance Analytics</h3>
-            <p className="mb-4 text-sm text-gray-600">
-              View booking rates and revenue insights
+          <Card className="slide-up rounded-3xl border border-border bg-card p-6 shadow-sm">
+            <h3 className="mb-2 text-lg font-semibold text-foreground">
+              Performance Analytics
+            </h3>
+            <p className="mb-4 text-sm text-muted-foreground">
+              View booking rates and revenue insights.
             </p>
             <Link href="/owner/analytics">
-              <Button variant="outline" className="w-full" disabled>
+              <Button variant="outline" size="lg" className="w-full" disabled>
                 View Analytics
               </Button>
             </Link>
           </Card>
-        </div>
-      )}
+        </section>
+      ) : null}
     </main>
+  );
+}
+
+function InfoRow({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="flex items-center justify-between gap-3 text-sm">
+      <span className="font-medium text-foreground/80">{label}</span>
+      <span className="text-foreground">{value}</span>
+    </div>
   );
 }

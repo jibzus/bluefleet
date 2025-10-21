@@ -1,10 +1,13 @@
 import Link from "next/link";
+import { Radar, Ship, Waves, Activity, Signal } from "lucide-react";
 import { prisma } from "@/lib/db";
 import { requireRole } from "@/lib/auth";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { getVesselStatus } from "@/lib/validators/tracking";
 import { PageHeader } from "@/components/layout/PageHeader";
+import { StatsCard } from "@/components/ui/stats-card";
+import { StatusChip } from "@/components/ui/status-chip";
 
 export default async function OperatorTripsPage() {
   const user = await requireRole(["OPERATOR"]);
@@ -75,7 +78,7 @@ export default async function OperatorTripsPage() {
   };
 
   return (
-    <main className="mx-auto max-w-7xl p-6">
+    <main className="mx-auto flex w-full max-w-7xl flex-col gap-10 px-6 pb-24">
       <PageHeader
         title="Active Trips"
         description="Monitor your active vessel charters in real-time"
@@ -86,81 +89,89 @@ export default async function OperatorTripsPage() {
         }
       />
 
-      {/* Statistics */}
-      <div className="mb-6 grid gap-4 md:grid-cols-4">
-        <Card className="p-4">
-          <p className="text-sm text-gray-600">Total Active</p>
-          <p className="text-3xl font-bold">{stats.total}</p>
-        </Card>
-        <Card className="p-4">
-          <p className="text-sm text-gray-600">Tracking Active</p>
-          <p className="text-3xl font-bold text-green-600">{stats.active}</p>
-        </Card>
-        <Card className="p-4">
-          <p className="text-sm text-gray-600">Tracking Stale</p>
-          <p className="text-3xl font-bold text-yellow-600">{stats.stale}</p>
-        </Card>
-        <Card className="p-4">
-          <p className="text-sm text-gray-600">Offline</p>
-          <p className="text-3xl font-bold text-gray-600">{stats.offline}</p>
-        </Card>
-      </div>
+      <section className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
+        <StatsCard label="Total Active" value={stats.total} icon={Ship} variant="primary" />
+        <StatsCard
+          label="Tracking Active"
+          value={stats.active}
+          icon={Activity}
+          variant="success"
+        />
+        <StatsCard
+          label="Tracking Stale"
+          value={stats.stale}
+          icon={Radar}
+          variant="warning"
+        />
+        <StatsCard
+          label="Offline Signals"
+          value={stats.offline}
+          icon={Signal}
+          variant="default"
+        />
+      </section>
 
-      {/* Trips List */}
       {tripsWithTracking.length === 0 ? (
-        <Card className="p-12 text-center">
-          <p className="text-gray-500 mb-4">No active trips</p>
+        <Card className="slide-up flex flex-col items-center gap-4 rounded-3xl border border-dashed border-border/70 bg-muted/30 p-12 text-center text-sm text-muted-foreground">
+          <Waves className="h-12 w-12 text-muted-foreground" />
+          <p className="text-base text-foreground">No active trips in progress</p>
           <Link href="/search">
-            <Button>Browse Vessels</Button>
+            <Button size="lg">Browse Vessels</Button>
           </Link>
         </Card>
       ) : (
-        <div className="grid gap-4">
+        <div className="grid gap-6">
           {tripsWithTracking.map((trip) => {
             const specs = trip.vessel.specs as any;
             const thumbnail = trip.vessel.media[0]?.url;
             const vesselStatus = getVesselStatus(trip.latestTracking);
 
-            const statusColors = {
-              ACTIVE: "bg-green-100 text-green-800",
-              STALE: "bg-yellow-100 text-yellow-800",
-              OFFLINE: "bg-gray-100 text-gray-800",
-            };
-
             return (
-              <Card key={trip.id} className="p-6">
-                <div className="flex gap-6">
+              <Card
+                key={trip.id}
+                className="slide-up overflow-hidden rounded-3xl border border-border bg-card shadow-sm transition-all hover:-translate-y-1 hover:shadow-xl"
+              >
+                <div className="flex flex-col gap-6 p-6 sm:flex-row sm:p-8">
                   {/* Vessel Image */}
                   {thumbnail && (
-                    <div className="flex-shrink-0">
+                    <div className="flex-shrink-0 overflow-hidden rounded-2xl border border-border/60 bg-muted">
                       <img
                         src={thumbnail}
                         alt={specs.name}
-                        className="h-32 w-48 rounded-lg object-cover"
+                        className="h-44 w-60 object-cover"
                       />
                     </div>
                   )}
 
                   {/* Trip Details */}
-                  <div className="flex-1">
-                    <div className="flex items-start justify-between">
-                      <div>
-                        <h3 className="text-xl font-semibold">{specs.name}</h3>
-                        <p className="text-sm text-gray-600">
+                  <div className="flex-1 space-y-6">
+                    <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+                      <div className="space-y-2">
+                        <h3 className="text-2xl font-semibold text-foreground">
+                          {specs.name}
+                        </h3>
+                        <p className="text-sm text-muted-foreground">
                           {trip.vessel.type} • {trip.vessel.homePort}
                         </p>
                       </div>
-                      <span
-                        className={`px-3 py-1 rounded-full text-sm font-medium ${statusColors[vesselStatus]}`}
-                      >
-                        {vesselStatus}
-                      </span>
+                      <StatusChip
+                        label={vesselStatus}
+                        variant={
+                          vesselStatus === "ACTIVE"
+                            ? "success"
+                            : vesselStatus === "STALE"
+                            ? "warning"
+                            : "muted"
+                        }
+                      />
                     </div>
 
-                    <div className="mt-4 grid gap-2 md:grid-cols-3">
-                      <div>
-                        <p className="text-xs text-gray-600">Charter Period</p>
-                        <p className="text-sm font-medium">
+                    <div className="grid gap-4 md:grid-cols-3">
+                      <div className="rounded-2xl border border-border/60 bg-muted/30 px-4 py-3">
+                        <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground/70">
+                          Charter Period
+                        </p>
+                        <p className="text-sm font-medium text-foreground">
                           {new Date(trip.start).toLocaleDateString()} -{" "}
                           {new Date(trip.end).toLocaleDateString()}
                         </p>
@@ -168,16 +179,20 @@ export default async function OperatorTripsPage() {
 
                       {trip.latestTracking && (
                         <>
-                          <div>
-                            <p className="text-xs text-gray-600">Last Position</p>
-                            <p className="text-sm font-medium">
+                          <div className="rounded-2xl border border-border/60 bg-muted/30 px-4 py-3">
+                            <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground/70">
+                              Last Position
+                            </p>
+                            <p className="text-sm font-medium text-foreground">
                               {trip.latestTracking.lat.toFixed(4)}°,{" "}
                               {trip.latestTracking.lng.toFixed(4)}°
                             </p>
                           </div>
-                          <div>
-                            <p className="text-xs text-gray-600">Last Update</p>
-                            <p className="text-sm font-medium">
+                          <div className="rounded-2xl border border-border/60 bg-muted/30 px-4 py-3">
+                            <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground/70">
+                              Last Update
+                            </p>
+                            <p className="text-sm font-medium text-foreground">
                               {new Date(trip.latestTracking.ts).toLocaleString()}
                             </p>
                           </div>
@@ -185,12 +200,14 @@ export default async function OperatorTripsPage() {
                       )}
                     </div>
 
-                    <div className="mt-4 flex gap-2">
+                    <div className="flex flex-wrap gap-3">
                       <Link href={`/operator/trips/${trip.id}`}>
-                        <Button>View Tracking</Button>
+                        <Button size="lg">
+                          View Tracking
+                        </Button>
                       </Link>
                       <Link href={`/operator/bookings/${trip.id}`}>
-                        <Button variant="outline">
+                        <Button variant="outline" size="lg">
                           Booking Details
                         </Button>
                       </Link>

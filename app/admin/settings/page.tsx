@@ -2,6 +2,7 @@ import { requireRole } from "@/lib/auth";
 import { Card } from "@/components/ui/card";
 import { SettingsForm } from "@/components/admin/SettingsForm";
 import { PageHeader } from "@/components/layout/PageHeader";
+import { StatusChip } from "@/components/ui/status-chip";
 
 export default async function AdminSettingsPage() {
   const user = await requireRole(["ADMIN"]);
@@ -17,7 +18,7 @@ export default async function AdminSettingsPage() {
   const { settings } = await response.json();
 
   return (
-    <main className="mx-auto max-w-4xl p-6">
+    <main className="mx-auto flex w-full max-w-5xl flex-col gap-10 px-6 pb-24">
       <PageHeader
         title="Platform Settings"
         description="Configure platform fees, payment providers, and feature flags"
@@ -30,136 +31,150 @@ export default async function AdminSettingsPage() {
       />
 
       <div className="space-y-6">
-        {/* Payment Settings */}
-        <Card className="p-6">
-          <h2 className="text-lg font-semibold mb-4">Payment Settings</h2>
+        <Card className="slide-up rounded-3xl border border-border bg-card p-8 shadow-sm">
+          <div className="mb-6">
+            <h2 className="text-2xl font-semibold text-foreground">Payment Settings</h2>
+            <p className="text-sm text-muted-foreground">
+              Update fees, escrow preferences, and provider configuration.
+            </p>
+          </div>
           <SettingsForm initialSettings={settings} />
         </Card>
 
-        {/* Feature Flags */}
-        <Card className="p-6">
-          <h2 className="text-lg font-semibold mb-4">Feature Flags</h2>
-          <div className="space-y-3">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="font-medium">Signup Enabled</p>
-                <p className="text-sm text-gray-600">
-                  Allow new users to sign up
-                </p>
-              </div>
-              <span
-                className={`px-3 py-1 rounded ${
-                  settings.signupEnabled
-                    ? "bg-green-100 text-green-800"
-                    : "bg-red-100 text-red-800"
-                }`}
-              >
-                {settings.signupEnabled ? "Enabled" : "Disabled"}
-              </span>
-            </div>
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="font-medium">Booking Enabled</p>
-                <p className="text-sm text-gray-600">
-                  Allow users to create bookings
-                </p>
-              </div>
-              <span
-                className={`px-3 py-1 rounded ${
-                  settings.bookingEnabled
-                    ? "bg-green-100 text-green-800"
-                    : "bg-red-100 text-red-800"
-                }`}
-              >
-                {settings.bookingEnabled ? "Enabled" : "Disabled"}
-              </span>
-            </div>
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="font-medium">Maintenance Mode</p>
-                <p className="text-sm text-gray-600">
-                  Put platform in maintenance mode
-                </p>
-              </div>
-              <span
-                className={`px-3 py-1 rounded ${
-                  settings.maintenanceMode
-                    ? "bg-yellow-100 text-yellow-800"
-                    : "bg-green-100 text-green-800"
-                }`}
-              >
-                {settings.maintenanceMode ? "Active" : "Inactive"}
-              </span>
-            </div>
+        <Card className="slide-up rounded-3xl border border-border bg-card p-8 shadow-sm">
+          <h2 className="text-2xl font-semibold text-foreground">Feature Flags</h2>
+          <p className="mt-2 text-sm text-muted-foreground">
+            Toggle core capabilities without deploying new code.
+          </p>
+          <div className="mt-6 space-y-4">
+            <FeatureToggle
+              label="Signup Enabled"
+              description="Allow new users to sign up"
+              enabled={settings.signupEnabled}
+            />
+            <FeatureToggle
+              label="Booking Enabled"
+              description="Allow users to create bookings"
+              enabled={settings.bookingEnabled}
+            />
+            <FeatureToggle
+              label="Maintenance Mode"
+              description="Put platform in maintenance mode"
+              enabled={settings.maintenanceMode}
+              enabledLabel="Active"
+              disabledLabel="Inactive"
+              enabledVariant="warning"
+            />
           </div>
         </Card>
 
-        {/* System Configuration */}
-        <Card className="p-6">
-          <h2 className="text-lg font-semibold mb-4">System Configuration</h2>
-          <div className="space-y-3">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="font-medium">AIS Polling Interval</p>
-                <p className="text-sm text-gray-600">
-                  How often to poll AIS data
-                </p>
-              </div>
-              <span className="font-bold">{settings.aisPollingInterval} min</span>
-            </div>
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="font-medium">Expiry Alert Days</p>
-                <p className="text-sm text-gray-600">
-                  Days before expiry to send alerts
-                </p>
-              </div>
-              <span className="font-bold">{settings.expiryAlertDays} days</span>
-            </div>
+        <Card className="slide-up rounded-3xl border border-border bg-card p-8 shadow-sm">
+          <h2 className="text-2xl font-semibold text-foreground">System Configuration</h2>
+          <p className="mt-2 text-sm text-muted-foreground">
+            Operational parameters that power live data and alerts.
+          </p>
+          <div className="mt-6 space-y-4">
+            <ConfigRow
+              label="AIS Polling Interval"
+              description="How often to poll AIS data"
+              value={`${settings.aisPollingInterval} min`}
+            />
+            <ConfigRow
+              label="Expiry Alert Days"
+              description="Days before expiry to send alerts"
+              value={`${settings.expiryAlertDays} days`}
+            />
           </div>
         </Card>
 
-        {/* Payment Providers */}
-        <Card className="p-6">
-          <h2 className="text-lg font-semibold mb-4">Payment Providers</h2>
-          <div className="space-y-3">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="font-medium">Paystack (Primary)</p>
-                <p className="text-sm text-gray-600">
-                  Primary payment provider
-                </p>
-              </div>
-              <span
-                className={`px-3 py-1 rounded ${
-                  settings.paystackEnabled
-                    ? "bg-green-100 text-green-800"
-                    : "bg-red-100 text-red-800"
-                }`}
-              >
-                {settings.paystackEnabled ? "Enabled" : "Disabled"}
-              </span>
-            </div>
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="font-medium">Flutterwave (Fallback)</p>
-                <p className="text-sm text-gray-600">
-                  Fallback payment provider
-                </p>
-              </div>
-              <span
-                className={`px-3 py-1 rounded ${
-                  settings.flutterwaveEnabled
-                    ? "bg-green-100 text-green-800"
-                    : "bg-red-100 text-red-800"
-                }`}
-              >
-                {settings.flutterwaveEnabled ? "Enabled" : "Disabled"}
-              </span>
-            </div>
+        <Card className="slide-up space-y-5 rounded-3xl border border-border bg-card p-8 shadow-sm">
+          <div>
+            <h2 className="text-2xl font-semibold text-foreground">Payment Providers</h2>
+            <p className="mt-2 text-sm text-muted-foreground">
+              Control which PSPs power escrow and payouts.
+            </p>
           </div>
+          <ProviderRow
+            label="Paystack (Primary)"
+            description="Primary payment provider"
+            enabled={settings.paystackEnabled}
+          />
+          <ProviderRow
+            label="Flutterwave (Fallback)"
+            description="Fallback payment provider"
+            enabled={settings.flutterwaveEnabled}
+          />
         </Card>
       </div>
     </main>
+  );
+}
+
+function FeatureToggle({
+  label,
+  description,
+  enabled,
+  enabledLabel = "Enabled",
+  disabledLabel = "Disabled",
+  enabledVariant = "success",
+}: {
+  label: string;
+  description: string;
+  enabled: boolean;
+  enabledLabel?: string;
+  disabledLabel?: string;
+  enabledVariant?: "success" | "info" | "warning";
+}) {
+  return (
+    <div className="flex flex-wrap items-center justify-between gap-4 rounded-2xl border border-border/70 bg-muted/20 px-4 py-4">
+      <div>
+        <p className="text-sm font-semibold text-foreground">{label}</p>
+        <p className="text-xs text-muted-foreground">{description}</p>
+      </div>
+      <StatusChip
+        label={enabled ? enabledLabel : disabledLabel}
+        variant={enabled ? enabledVariant : "danger"}
+      />
+    </div>
+  );
+}
+
+function ConfigRow({
+  label,
+  description,
+  value,
+}: {
+  label: string;
+  description: string;
+  value: string;
+}) {
+  return (
+    <div className="flex flex-wrap items-center justify-between gap-4 rounded-2xl border border-border/60 bg-muted/30 px-4 py-4">
+      <div>
+        <p className="text-sm font-semibold text-foreground">{label}</p>
+        <p className="text-xs text-muted-foreground">{description}</p>
+      </div>
+      <span className="text-sm font-semibold text-foreground">{value}</span>
+    </div>
+  );
+}
+
+function ProviderRow({
+  label,
+  description,
+  enabled,
+}: {
+  label: string;
+  description: string;
+  enabled: boolean;
+}) {
+  return (
+    <div className="flex flex-wrap items-center justify-between gap-4 rounded-2xl border border-border/60 bg-muted/30 px-4 py-4">
+      <div>
+        <p className="text-sm font-semibold text-foreground">{label}</p>
+        <p className="text-xs text-muted-foreground">{description}</p>
+      </div>
+      <StatusChip label={enabled ? "Enabled" : "Disabled"} variant={enabled ? "success" : "danger"} />
+    </div>
   );
 }

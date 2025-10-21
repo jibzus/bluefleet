@@ -119,17 +119,20 @@ export default function KYCPage() {
   };
 
   return (
-    <main className="mx-auto max-w-4xl p-6">
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold">KYC/KYB Application</h1>
-        <p className="mt-2 text-gray-600">
-          Complete your Know Your Customer / Know Your Business verification
+    <main className="mx-auto flex w-full max-w-4xl flex-col gap-8 px-6 pb-24">
+      <header className="fade-in rounded-3xl border border-primary/20 bg-gradient-to-r from-primary/10 via-card to-card px-6 py-10 shadow-sm">
+        <h1 className="text-4xl font-bold text-foreground">KYC/KYB Application</h1>
+        <p className="mt-4 max-w-2xl text-sm text-muted-foreground sm:text-base">
+          Complete your Know Your Customer / Know Your Business verification to unlock secure escrow,
+          compliance monitoring, and full marketplace access.
         </p>
-      </div>
+      </header>
 
-      <Stepper steps={steps} currentStep={currentStep} />
+      <Card className="slide-up rounded-3xl border border-border bg-card p-6 shadow-sm">
+        <Stepper steps={steps} currentStep={currentStep} />
+      </Card>
 
-      <Card className="mt-8 p-8">
+      <Card className="slide-up rounded-3xl border border-border bg-card p-8 shadow-sm">
         {currentStep === 1 && (
           <Step1PersonalInfo
             data={formData.personalInfo}
@@ -172,7 +175,7 @@ export default function KYCPage() {
 
         {currentStep === 5 && <Step5Review data={formData} />}
 
-        <div className="mt-8 flex justify-between">
+        <div className="mt-8 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <Button
             variant="outline"
             onClick={handleBack}
@@ -182,21 +185,26 @@ export default function KYCPage() {
           </Button>
 
           {currentStep < 5 ? (
-            <Button onClick={handleNext}>Next</Button>
+            <Button size="lg" onClick={handleNext}>
+              Continue
+            </Button>
           ) : (
-            <Button onClick={handleSubmit} disabled={isSubmitting}>
+            <Button size="lg" onClick={handleSubmit} disabled={isSubmitting}>
               {isSubmitting ? "Submitting..." : "Submit Application"}
             </Button>
           )}
         </div>
       </Card>
 
-      <div className="mt-6 rounded-lg bg-blue-50 p-4">
-        <p className="text-sm text-blue-900">
-          <strong>💾 Auto-save:</strong> Your progress is automatically saved. You can return to complete this form later.
+      <div className="slide-up rounded-3xl border border-dashed border-primary/40 bg-primary/5 px-6 py-5 text-sm text-muted-foreground">
+        <p className="flex items-center gap-2 text-sm text-primary">
+          <span className="text-base">💾</span>
+          <span className="font-semibold text-foreground">Auto-save enabled</span>
+        </p>
+        <p className="mt-2">
+          Your progress is stored locally every time you update a section. Feel free to pause and return when ready.
         </p>
       </div>
     </main>
   );
 }
-
