@@ -359,6 +359,7 @@ export interface StatusDistributionDatum {
   status: string;
   count: number;
   fill: string;
+  [key: string]: string | number;
 }
 
 export interface MonthlySpendingDatum {
