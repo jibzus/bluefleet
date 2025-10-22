@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Radar, Ship, Waves, Activity, Signal } from "lucide-react";
+import { Radar, Ship, Waves, Activity, Signal, BarChart3 } from "lucide-react";
 import { prisma } from "@/lib/db";
 import { requireRole } from "@/lib/auth";
 import { Card } from "@/components/ui/card";
@@ -83,9 +83,17 @@ export default async function OperatorTripsPage() {
         title="Active Trips"
         description="Monitor your active vessel charters in real-time"
         actions={
-          <Link href="/operator/bookings">
-            <Button variant="outline">Booking Requests</Button>
-          </Link>
+          <div className="flex flex-col gap-3 sm:flex-row">
+            <Link href="/operator/analytics">
+              <Button variant="outline">
+                <BarChart3 className="mr-2 h-4 w-4" />
+                View Analytics
+              </Button>
+            </Link>
+            <Link href="/operator/bookings">
+              <Button variant="outline">Booking Requests</Button>
+            </Link>
+          </div>
         }
       />
 

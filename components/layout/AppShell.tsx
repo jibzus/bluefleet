@@ -31,6 +31,7 @@ const roleSpecificNav: Record<Role, NavConfig[]> = {
   OPERATOR: [
     { label: "Bookings", href: "/operator/bookings" },
     { label: "Trips", href: "/operator/trips" },
+    { label: "Analytics", href: "/operator/analytics" },
   ],
   REGULATOR: [{ label: "Compliance", href: "/compliance" }],
 };
