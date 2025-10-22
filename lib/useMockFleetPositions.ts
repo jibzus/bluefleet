@@ -14,7 +14,12 @@ const INITIAL_VESSELS: VesselPosition[] = [
     heading: 78,
     speed: 14,
     updatedAt: new Date().toISOString(),
-    position: { lat: 28.213, lng: -89.215 },
+    position: { lat: 27.5, lng: -91.8 }, // Gulf of Mexico - deep water offshore Louisiana
+    imoNumber: "9653037",
+    destination: "Gulf of Mexico Platform",
+    eta: new Date(Date.now() + 6 * 60 * 60 * 1000).toISOString(), // 6 hours from now
+    flag: "Nigeria",
+    dwt: 3300,
   },
   {
     id: "aurora-spirit",
@@ -24,7 +29,12 @@ const INITIAL_VESSELS: VesselPosition[] = [
     heading: 32,
     speed: 18,
     updatedAt: new Date().toISOString(),
-    position: { lat: 36.622, lng: 7.213 },
+    position: { lat: 39.8, lng: 5.5 }, // Mediterranean Sea - open water between Spain and Sardinia
+    imoNumber: "9745821",
+    destination: "Barcelona, Spain",
+    eta: new Date(Date.now() + 12 * 60 * 60 * 1000).toISOString(), // 12 hours from now
+    flag: "Malta",
+    dwt: 5200,
   },
   {
     id: "pacific-runner",
@@ -34,7 +44,12 @@ const INITIAL_VESSELS: VesselPosition[] = [
     heading: 249,
     speed: 21,
     updatedAt: new Date().toISOString(),
-    position: { lat: 14.34, lng: 119.95 },
+    position: { lat: 14.34, lng: 119.95 }, // South China Sea - west of Philippines
+    imoNumber: "9812456",
+    destination: "Manila Bay",
+    eta: new Date(Date.now() + 4 * 60 * 60 * 1000).toISOString(), // 4 hours from now
+    flag: "Philippines",
+    dwt: 1800,
   },
   {
     id: "atlantic-dawn",
@@ -44,7 +59,12 @@ const INITIAL_VESSELS: VesselPosition[] = [
     heading: 195,
     speed: 12,
     updatedAt: new Date().toISOString(),
-    position: { lat: 58.46, lng: 1.85 },
+    position: { lat: 58.46, lng: 1.85 }, // North Sea - offshore Scotland
+    imoNumber: "9678923",
+    destination: "North Sea Field",
+    eta: new Date(Date.now() + 8 * 60 * 60 * 1000).toISOString(), // 8 hours from now
+    flag: "UK",
+    dwt: 4500,
   },
   {
     id: "beacon-star",
@@ -54,7 +74,12 @@ const INITIAL_VESSELS: VesselPosition[] = [
     heading: 132,
     speed: 11,
     updatedAt: new Date().toISOString(),
-    position: { lat: -1.28, lng: 146.18 },
+    position: { lat: -1.28, lng: 146.18 }, // Bismarck Sea - north of Papua New Guinea
+    imoNumber: "9734512",
+    destination: "Papua New Guinea",
+    eta: new Date(Date.now() + 18 * 60 * 60 * 1000).toISOString(), // 18 hours from now
+    flag: "Singapore",
+    dwt: 2900,
   },
   {
     id: "southern-tide",
@@ -64,7 +89,12 @@ const INITIAL_VESSELS: VesselPosition[] = [
     heading: 287,
     speed: 9,
     updatedAt: new Date().toISOString(),
-    position: { lat: -33.12, lng: 17.96 },
+    position: { lat: -33.845, lng: 17.125 }, // Atlantic Ocean - offshore Cape Town
+    imoNumber: "9689234",
+    destination: "Cape Town",
+    eta: new Date(Date.now() + 10 * 60 * 60 * 1000).toISOString(), // 10 hours from now
+    flag: "South Africa",
+    dwt: 2100,
   },
 ];
 

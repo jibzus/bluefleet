@@ -10,5 +10,11 @@ export interface VesselPosition {
     lat: number;
     lng: number;
   };
+  // Additional vessel details for enhanced display
+  imoNumber?: string;
+  destination?: string;
+  eta?: string; // ISO date string
+  flag?: string;
+  dwt?: number; // Deadweight tonnage
 }
 
