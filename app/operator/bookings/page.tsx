@@ -1,5 +1,13 @@
 import Link from "next/link";
-import { CalendarCheck, CalendarX, Clock3, Ship, ClipboardList, Inbox } from "lucide-react";
+import {
+  CalendarCheck,
+  CalendarX,
+  Clock3,
+  Ship,
+  ClipboardList,
+  Inbox,
+  BarChart3,
+} from "lucide-react";
 import { prisma } from "@/lib/db";
 import { requireRole } from "@/lib/auth";
 import { Card } from "@/components/ui/card";
@@ -61,9 +69,17 @@ export default async function OperatorBookingsPage() {
         title="My Bookings"
         description="Manage your vessel booking requests and active charters"
         actions={
-          <Link href="/search">
-            <Button variant="outline">Browse Vessels</Button>
-          </Link>
+          <div className="flex flex-col gap-3 sm:flex-row">
+            <Link href="/operator/analytics">
+              <Button variant="outline">
+                <BarChart3 className="mr-2 h-4 w-4" />
+                View Analytics
+              </Button>
+            </Link>
+            <Link href="/search">
+              <Button variant="outline">Browse Vessels</Button>
+            </Link>
+          </div>
         }
       />
 
