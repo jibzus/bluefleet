@@ -1,6 +1,7 @@
 import dynamic from "next/dynamic";
 import Link from "next/link";
 import { HeroSection } from "@/components/landing/HeroSection";
+import { BookingFlowDemo } from "@/components/landing/BookingFlowDemo";
 import { HowItWorks } from "@/components/landing/HowItWorks";
 import { BenefitsGrid } from "@/components/landing/BenefitsGrid";
 import { ChatButton } from "@/components/landing/ChatButton";
@@ -19,6 +20,7 @@ export default async function Home() {
     <AppShell>
       <main className="flex flex-col gap-20 pb-24">
         <HeroSection />
+        <BookingFlowDemo />
         <section className="fade-in">
           <div className="mx-auto max-w-6xl px-6">
             <div className="slide-up overflow-hidden rounded-3xl border border-border bg-card shadow-xl">

@@ -171,7 +171,7 @@ export function BookingRequestDialog({
             </div>
 
             {/* Cost Summary */}
-            {cost && (
+            {cost && pricing.dailyRate && (
               <Card className="bg-gray-50 p-4">
                 <div className="space-y-2 text-sm">
                   <div className="flex justify-between">
@@ -181,27 +181,27 @@ export function BookingRequestDialog({
                   <div className="flex justify-between">
                     <span className="text-gray-600">Daily Rate:</span>
                     <span className="font-medium">
-                      {pricing.currency} {pricing.dailyRate.toLocaleString()}
+                      {pricing.currency} {pricing.dailyRate?.toLocaleString() || "N/A"}
                     </span>
                   </div>
                   <div className="flex justify-between">
                     <span className="text-gray-600">Subtotal:</span>
                     <span className="font-medium">
-                      {pricing.currency} {cost.subtotal.toLocaleString()}
+                      {pricing.currency} {cost.subtotal?.toLocaleString() || "N/A"}
                     </span>
                   </div>
                   {cost.securityDeposit > 0 && (
                     <div className="flex justify-between">
                       <span className="text-gray-600">Security Deposit:</span>
                       <span className="font-medium">
-                        {pricing.currency} {cost.securityDeposit.toLocaleString()}
+                        {pricing.currency} {cost.securityDeposit?.toLocaleString() || "N/A"}
                       </span>
                     </div>
                   )}
                   <div className="flex justify-between border-t pt-2 text-base">
                     <span className="font-semibold">Total:</span>
                     <span className="font-bold text-primary">
-                      {pricing.currency} {cost.total.toLocaleString()}
+                      {pricing.currency} {cost.total?.toLocaleString() || "N/A"}
                     </span>
                   </div>
                 </div>

@@ -50,7 +50,14 @@ export default async function VesselDetailPage({
   }
 
   const specs = vessel.specs as Record<string, any>;
-  const pricing = specs.pricing || {};
+  const pricing = specs.pricing || {
+    dailyRate: 50000,
+    currency: "USD",
+    minimumDays: 1,
+    securityDeposit: 0,
+    fuelIncluded: false,
+    crewIncluded: false,
+  };
   const emissions = specs.emissions || vessel.emissions || {};
   const isActive = vessel.status === "ACTIVE";
 
@@ -308,7 +315,7 @@ export default async function VesselDetailPage({
                 </div>
                 <p className="mt-1">
                   {pricing.currency || "USD"}{" "}
-                  {pricing.securityDeposit.toLocaleString()}
+                  {pricing.securityDeposit?.toLocaleString() || "N/A"}
                 </p>
               </div>
             ) : null}
