@@ -498,6 +498,80 @@ export interface OperatorAnalyticsPayload {
   vessels: VesselFilterOption[];
 }
 
+export type OwnerAnalyticsBooking = Prisma.BookingGetPayload<{
+  include: {
+    vessel: {
+      select: {
+        id: true;
+        type: true;
+        specs: true;
+        ownerId: true;
+      };
+    };
+    operator: {
+      select: {
+        id: true;
+        name: true;
+        email: true;
+      };
+    };
+    escrow: true;
+    contract: true;
+  };
+}>;
+
+export interface OwnerMetricSummary {
+  totalRevenue: number;
+  fleetUtilization: number;
+  avgDailyRate: number;
+  pendingEscrow: number;
+  acceptanceRate: number;
+  activeCharters: number;
+  totalBookings: number;
+  cancelledBookings: number;
+}
+
+export interface RevenueTrendDatum {
+  month: string;
+  revenue: number;
+  cumulativeRevenue: number;
+}
+
+export interface RevenueByTypeDatum {
+  vesselType: string;
+  revenue: number;
+  bookingCount: number;
+}
+
+export interface MonthlyRevenueDatum {
+  month: string;
+  revenue: number;
+  bookings: number;
+}
+
+export interface OperatorDistributionDatum {
+  operatorId: string;
+  operatorName: string;
+  operatorEmail: string;
+  bookingCount: number;
+  totalRevenue: number;
+}
+
+export interface OwnerAnalyticsPayload {
+  bookings: OwnerAnalyticsBooking[];
+  metrics: OwnerMetricSummary;
+  revenueTrends: RevenueTrendDatum[];
+  revenueByType: RevenueByTypeDatum[];
+  statusDistribution: StatusDistributionDatum[];
+  monthlyRevenue: MonthlyRevenueDatum[];
+  vesselTimeline: VesselTimelineItem[];
+  vesselComparison: VesselComparisonRow[];
+  operatorDistribution: OperatorDistributionDatum[];
+  paymentSummary: PaymentSummary;
+  paymentHistory: PaymentHistoryRow[];
+  vessels: VesselFilterOption[];
+}
+
 const STATUS_COLORS: Record<string, string> = {
   REQUESTED: "hsl(var(--chart-1))",
   COUNTERED: "hsl(var(--chart-4))",
@@ -505,7 +579,13 @@ const STATUS_COLORS: Record<string, string> = {
   CANCELLED: "hsl(var(--chart-5))",
 };
 
-function extractVesselName(booking: OperatorAnalyticsBooking): string {
+type BookingWithVessel = {
+  vessel?: {
+    specs?: unknown;
+  } | null;
+};
+
+function extractVesselName(booking: BookingWithVessel): string {
   const specs = (booking.vessel?.specs as any) || {};
   return specs.name || "Unnamed Vessel";
 }
@@ -527,7 +607,7 @@ function durationInDays(start: Date | string, end: Date | string): number {
   return Math.ceil(diff / DAY_IN_MS);
 }
 
-function bookingCost(booking: OperatorAnalyticsBooking): number {
+function bookingCost(booking: { terms?: unknown }): number {
   const terms = (booking.terms as any) || {};
   return typeof terms.totalCost === "number" ? terms.totalCost : 0;
 }
@@ -622,7 +702,7 @@ export function prepareSpendingByTypeData(
 }
 
 export function prepareStatusDistributionData(
-  bookings: OperatorAnalyticsBooking[],
+  bookings: Array<OperatorAnalyticsBooking | OwnerAnalyticsBooking>,
 ): StatusDistributionDatum[] {
   const statusCounts = new Map<string, number>();
 
@@ -678,7 +758,7 @@ export function prepareCostByDurationData(
 }
 
 export function prepareVesselTimelineData(
-  bookings: OperatorAnalyticsBooking[],
+  bookings: Array<OperatorAnalyticsBooking | OwnerAnalyticsBooking>,
 ): VesselTimelineItem[] {
   const vessels = new Map<string, VesselTimelineItem>();
 
@@ -709,7 +789,7 @@ export function prepareVesselTimelineData(
 }
 
 export function prepareVesselComparisonData(
-  bookings: OperatorAnalyticsBooking[],
+  bookings: Array<OperatorAnalyticsBooking | OwnerAnalyticsBooking>,
 ): VesselComparisonRow[] {
   const vessels = new Map<string, VesselComparisonRow>();
 
@@ -747,7 +827,7 @@ export function prepareVesselComparisonData(
 }
 
 export function calculatePaymentSummary(
-  bookings: OperatorAnalyticsBooking[],
+  bookings: Array<OperatorAnalyticsBooking | OwnerAnalyticsBooking>,
 ): PaymentSummary {
   let pendingAmount = 0;
   let fundedAmount = 0;
@@ -778,7 +858,7 @@ export function calculatePaymentSummary(
 }
 
 export function preparePaymentHistory(
-  bookings: OperatorAnalyticsBooking[],
+  bookings: Array<OperatorAnalyticsBooking | OwnerAnalyticsBooking>,
 ): PaymentHistoryRow[] {
   return bookings
     .filter((booking) => Boolean(booking.escrow))
@@ -1015,7 +1095,7 @@ export function calculateEfficiencyScore(
 }
 
 export function buildVesselFilterOptions(
-  bookings: OperatorAnalyticsBooking[],
+  bookings: Array<OperatorAnalyticsBooking | OwnerAnalyticsBooking>,
 ): VesselFilterOption[] {
   const vessels = new Map<string, VesselFilterOption>();
 
@@ -1084,3 +1164,186 @@ export function buildOperatorAnalyticsPayload(
   };
 }
 
+function sumDailyRate(bookings: OwnerAnalyticsBooking[]): number {
+  return bookings.reduce((total, booking) => {
+    const terms = (booking.terms as any) || {};
+    const rate = typeof terms.dailyRate === "number" ? terms.dailyRate : 0;
+    return total + rate;
+  }, 0);
+}
+
+export function calculateOwnerMetrics(bookings: OwnerAnalyticsBooking[]): OwnerMetricSummary {
+  const now = new Date();
+  const currentYear = now.getFullYear();
+  const accepted = bookings.filter((booking) => booking.status === "ACCEPTED");
+
+  const totalRevenue = accepted
+    .filter((booking) => new Date(booking.createdAt).getFullYear() === currentYear)
+    .reduce((sum, booking) => sum + bookingCost(booking), 0);
+
+  const vesselIds = new Set(bookings.map((booking) => booking.vesselId));
+  const yearStart = new Date(currentYear, 0, 1);
+  const daysElapsed = Math.max(Math.ceil((now.getTime() - yearStart.getTime()) / DAY_IN_MS), 1);
+  const totalAvailableDays = vesselIds.size * daysElapsed;
+
+  const bookedDays = accepted.reduce((sum, booking) => sum + durationInDays(booking.start, booking.end), 0);
+  const fleetUtilization = totalAvailableDays > 0 ? (bookedDays / totalAvailableDays) * 100 : 0;
+
+  const avgDailyRate = accepted.length > 0 ? sumDailyRate(accepted) / accepted.length : 0;
+
+  const pendingEscrow = bookings
+    .filter((booking) => booking.escrow?.status === "FUNDED")
+    .reduce((sum, booking) => sum + normalizeAmount(booking.escrow?.amount ?? 0), 0);
+
+  const acceptanceRate = bookings.length > 0 ? (accepted.length / bookings.length) * 100 : 0;
+
+  const activeCharters = accepted.filter((booking) => {
+    const start = new Date(booking.start).getTime();
+    const end = new Date(booking.end).getTime();
+    const nowMs = now.getTime();
+    return start <= nowMs && end >= nowMs;
+  }).length;
+
+  const cancelledBookings = bookings.filter((booking) => booking.status === "CANCELLED").length;
+
+  return {
+    totalRevenue,
+    fleetUtilization,
+    avgDailyRate,
+    pendingEscrow,
+    acceptanceRate,
+    activeCharters,
+    totalBookings: bookings.length,
+    cancelledBookings,
+  };
+}
+
+export function prepareOwnerRevenueTrend(
+  bookings: OwnerAnalyticsBooking[],
+): RevenueTrendDatum[] {
+  const monthlyRevenue = new Map<string, number>();
+
+  bookings
+    .filter((booking) => booking.status === "ACCEPTED")
+    .forEach((booking) => {
+      const month = new Date(booking.createdAt).toISOString().slice(0, 7);
+      const current = monthlyRevenue.get(month) ?? 0;
+      monthlyRevenue.set(month, current + bookingCost(booking));
+    });
+
+  const sorted = Array.from(monthlyRevenue.entries()).sort((a, b) => a[0].localeCompare(b[0]));
+  let cumulative = 0;
+
+  return sorted.map(([month, revenue]) => {
+    cumulative += revenue;
+    return { month, revenue, cumulativeRevenue: cumulative };
+  });
+}
+
+export function prepareOwnerRevenueByType(
+  bookings: OwnerAnalyticsBooking[],
+): RevenueByTypeDatum[] {
+  const byType = new Map<string, { revenue: number; count: number }>();
+
+  bookings
+    .filter((booking) => booking.status === "ACCEPTED")
+    .forEach((booking) => {
+      const type = booking.vessel?.type || "Unknown";
+      const record = byType.get(type) ?? { revenue: 0, count: 0 };
+      record.revenue += bookingCost(booking);
+      record.count += 1;
+      byType.set(type, record);
+    });
+
+  return Array.from(byType.entries())
+    .map(([vesselType, value]) => ({
+      vesselType,
+      revenue: value.revenue,
+      bookingCount: value.count,
+    }))
+    .sort((a, b) => b.revenue - a.revenue);
+}
+
+export function prepareOwnerMonthlyRevenue(
+  bookings: OwnerAnalyticsBooking[],
+): MonthlyRevenueDatum[] {
+  const monthly = new Map<string, { revenue: number; bookings: number }>();
+
+  bookings
+    .filter((booking) => booking.status === "ACCEPTED")
+    .forEach((booking) => {
+      const month = new Date(booking.createdAt).toISOString().slice(0, 7);
+      const entry = monthly.get(month) ?? { revenue: 0, bookings: 0 };
+      entry.revenue += bookingCost(booking);
+      entry.bookings += 1;
+      monthly.set(month, entry);
+    });
+
+  return Array.from(monthly.entries())
+    .map(([month, value]) => ({
+      month,
+      revenue: value.revenue,
+      bookings: value.bookings,
+    }))
+    .sort((a, b) => a.month.localeCompare(b.month));
+}
+
+export function prepareOperatorDistribution(
+  bookings: OwnerAnalyticsBooking[],
+): OperatorDistributionDatum[] {
+  const operators = new Map<string, OperatorDistributionDatum>();
+
+  bookings
+    .filter((booking) => booking.status === "ACCEPTED")
+    .forEach((booking) => {
+      const operatorId = booking.operator?.id || "unknown";
+      const operatorName = booking.operator?.name || "Unknown operator";
+      const operatorEmail = booking.operator?.email || "unknown@example.com";
+      if (!operators.has(operatorId)) {
+        operators.set(operatorId, {
+          operatorId,
+          operatorName,
+          operatorEmail,
+          bookingCount: 0,
+          totalRevenue: 0,
+        });
+      }
+
+      const entry = operators.get(operatorId)!;
+      entry.bookingCount += 1;
+      entry.totalRevenue += bookingCost(booking);
+    });
+
+  return Array.from(operators.values()).sort((a, b) => b.totalRevenue - a.totalRevenue);
+}
+
+export function buildOwnerAnalyticsPayload(
+  bookings: OwnerAnalyticsBooking[],
+): OwnerAnalyticsPayload {
+  const metrics = calculateOwnerMetrics(bookings);
+  const revenueTrends = prepareOwnerRevenueTrend(bookings);
+  const revenueByType = prepareOwnerRevenueByType(bookings);
+  const statusDistribution = prepareStatusDistributionData(bookings);
+  const monthlyRevenue = prepareOwnerMonthlyRevenue(bookings);
+  const vesselTimeline = prepareVesselTimelineData(bookings);
+  const vesselComparison = prepareVesselComparisonData(bookings);
+  const operatorDistribution = prepareOperatorDistribution(bookings);
+  const paymentSummary = calculatePaymentSummary(bookings);
+  const paymentHistory = preparePaymentHistory(bookings);
+  const vessels = buildVesselFilterOptions(bookings);
+
+  return {
+    bookings,
+    metrics,
+    revenueTrends,
+    revenueByType,
+    statusDistribution,
+    monthlyRevenue,
+    vesselTimeline,
+    vesselComparison,
+    operatorDistribution,
+    paymentSummary,
+    paymentHistory,
+    vessels,
+  };
+}

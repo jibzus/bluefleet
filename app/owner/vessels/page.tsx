@@ -178,7 +178,7 @@ export default async function OwnerVesselsPage() {
               View booking rates and revenue insights.
             </p>
             <Link href="/owner/analytics">
-              <Button variant="outline" size="lg" className="w-full" disabled>
+              <Button variant="outline" size="lg" className="w-full">
                 View Analytics
               </Button>
             </Link>
